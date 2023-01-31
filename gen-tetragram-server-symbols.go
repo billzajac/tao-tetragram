@@ -3,18 +3,13 @@ package main
 import (
 	"crypto/rand"
 	"fmt"
+	"log"
 	"math/big"
+	"net/http"
 	"time"
 )
 
-// https://en.wiktionary.org/wiki/Taixuanjing
-// Tai Xuan Jing tetragrams
-//
-// There are 81 permutations of the following three lines, given 4 lines
-// ------ Heaven, --  -- Earth, - - - Man
-// 3^4 = 81
-
-func main() {
+func generateTetragram(w http.ResponseWriter, r *http.Request) {
 	t := time.Now()
 	tetragrams := []string{"𝌆", "𝌇", "𝌈", "𝌉", "𝌊", "𝌋", "𝌌", "𝌍", "𝌎", "𝌏", "𝌐", "𝌑", "𝌒", "𝌓", "𝌔", "𝌕", "𝌖", "𝌗", "𝌘", "𝌙", "𝌚", "𝌛", "𝌜", "𝌝", "𝌞", "𝌟", "𝌠", "𝌡", "𝌢", "𝌣", "𝌤", "𝌥", "𝌦", "𝌧", "𝌨", "𝌩", "𝌪", "𝌫", "𝌬", "𝌭", "𝌮", "𝌯", "𝌰", "𝌱", "𝌲", "𝌳", "𝌴", "𝌵", "𝌶", "𝌷", "𝌸", "𝌹", "𝌺", "𝌻", "𝌼", "𝌽", "𝌾", "𝌿", "𝍀", "𝍁", "𝍂", "𝍃", "𝍄", "𝍅", "𝍆", "𝍇", "𝍈", "𝍉", "𝍊", "𝍋", "𝍌", "𝍍", "𝍎", "𝍏", "𝍐", "𝍑", "𝍒", "𝍓", "𝍔", "𝍕", "𝍖"}
 
@@ -26,7 +21,17 @@ func main() {
 
 	// have to convert bigint back to int64 to use in index
 	tetragram := tetragrams[randInt.Int64()]
+	// Remember to add 1 here because the slice starts with position 0
 	tetragram_int := randInt.Int64() + 1
 	// now := t.Format("2006-01-02 15:04:05")
-	fmt.Printf("%d %s %s\n", tetragram_int, tetragram, t)
+
+	fmt.Fprintf(w, "%d %s %s\n", tetragram_int, tetragram, t)
+}
+
+func main() {
+	http.HandleFunc("/", generateTetragram)  // set router
+	err := http.ListenAndServe(":8080", nil) // set listen port
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
